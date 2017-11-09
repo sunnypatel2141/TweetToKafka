@@ -32,8 +32,8 @@ public class TwitterStream
 		  .setOAuthAccessToken(args[2])
 		  .setOAuthAccessTokenSecret(args[3]);
 		
-		System.out.println("Access Token " + args[2]);
-		System.out.println("Access Token Secret " + args[3]);
+		System.out.println("Access Token: " + args[2]);
+		System.out.println("Access Token Secret: " + args[3]);
 		System.out.println("Searching... " + args[4]);
 		
 		TwitterFactory tf = new TwitterFactory(cb.build());

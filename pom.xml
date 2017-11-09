@@ -26,5 +26,11 @@
        <artifactId>twitter4j-core</artifactId>
        <version>[4.0,)</version>
       </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
+	<dependency>
+   		<groupId>org.apache.kafka</groupId>
+    		<artifactId>kafka-clients</artifactId>
+    		<version>1.0.0</version>
+	</dependency>
   </dependencies>
 </project>
