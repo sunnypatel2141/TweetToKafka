@@ -4,7 +4,7 @@ This is an application which searches Twitter for keywords passed in as argument
 
 Make sure you have Confluent running on localhost with Zookeeper node, Kafka Broker, Schema Registry and REST Server. The application assumes bootstrap host is 9092 and schema port is 8081. KafkaWriter.java can be modified to change the server hosts and port numbers.  
 
-Run the Java Application with following arguments:  
+Run the tweet-kafka.jar file with following arguments (`java -jar tweet-kafka.jar`):  
 args[0] = Consumer Key  
 args[1] = Consumer Key Secret  
 args[2] = Access Token  
