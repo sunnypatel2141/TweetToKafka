@@ -108,7 +108,7 @@ public class KafkaWriter
 	{
 		System.out.println("Parsing schema...");
 		Schema.Parser parser = new Schema.Parser();
-		Schema schema = parser.parse(schemaString);
+		parser.parse(schemaString);
 	}
 	
 	private void sendRecords(Properties props)
