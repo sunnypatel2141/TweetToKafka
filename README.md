@@ -18,4 +18,5 @@ The jars/ folder contains all the necessary jars needed to compile and run the a
 Twitter Streaming API: Twitter4J    
 To get API key as well as Access Token: https://apps.twitter.com/    
 References: https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens, 
-http://twitter4j.org/en/index.html
+http://twitter4j.org/en/index.html  
+Avro Serialization: https://docs.confluent.io/current/schema-registry/docs/serializer-formatter.html

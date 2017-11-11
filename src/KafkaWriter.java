@@ -1,4 +1,6 @@
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.*;
 import java.util.List;
 import java.util.Properties;
@@ -54,11 +56,9 @@ public class KafkaWriter
 	//			producer.close();
 	//		}
 	//	}
-
-	
 	private List<Tweets> tweets;
 	private String topic;
-	
+
 	public KafkaWriter()
 	{
 		// TODO Auto-generated constructor stub
@@ -68,68 +68,79 @@ public class KafkaWriter
 	{
 		Properties props = assignProperties();
 		String schemaString = createSchema();
-		parseSchema(schemaString);
-		sendRecords(props);
+		Schema schema = parseSchema(schemaString);
+		sendRecords(props, schema);
 		return true;
 	}
 
 	private Properties assignProperties() 
 	{
-		System.out.println("Assigning properties...");
-		
+		Logging.print("Assigning properties...");
+
 		String url = "http://localhost:8081";
 		Properties props = new Properties();
-		
+
 		//localhost at default port
 		props.put("bootstrap.servers", "localhost:9092");
 		props.put("acks", "all");
 		props.put("retries", 0);
-		
+
 		//Confluent Avro Serializer
 		props.put("key.serializer", io.confluent.kafka.serializers.KafkaAvroSerializer.class);
 		props.put("value.serializer", io.confluent.kafka.serializers.KafkaAvroSerializer.class);
 		props.put("schema.registry.url", url);
 		return props;
 	}
-	
+
 	private String createSchema()
 	{
 		String schemaString = 
 				"{\"namespace\": \"tweets\", \"type\": \"record\", " +
-				"\"name\": \"" + topic + "\"," +
-				"\"fields\": [" +
-				"{\"name\": \"username\", \"type\": \"string\"}," +
-				"{\"name\": \"tweet\", \"type\": \"string\"}" +
-				"]}";
+						"\"name\": \"" + topic + "\"," +
+						"\"fields\": [" +
+						"{\"name\": \"createdAt\", \"type\": [\"null\",\"string\"],\"default\":null}," +
+						"{\"name\": \"username\", \"type\": [\"null\",\"string\"],\"default\":null}," +
+						"{\"name\": \"tweet\", \"type\": [\"null\",\"string\"],\"default\":null}" +
+						"]}";
 		return schemaString;
 	}
-	
-	private void parseSchema(String schemaString)
+
+	private Schema parseSchema(String schemaString)
 	{
-		System.out.println("Parsing schema...");
+		Logging.print("Parsing schema...");
 		Schema.Parser parser = new Schema.Parser();
-		parser.parse(schemaString);
+		Schema schema = parser.parse(schemaString);
+		return schema;
 	}
-	
-	private void sendRecords(Properties props)
+
+	private void sendRecords(Properties props, Schema schema)
 	{
-		System.out.println("Sending data to Kafka...");
-		Producer<String, String> producer = new KafkaProducer<String, String>(props);
-		
+		Logging.print("Sending records to Kafka...");
+
+		KafkaProducer<Object, Object> producer = new KafkaProducer<Object, Object>(props);
+
 		for (Tweets tweet : tweets)
 		{
-			ProducerRecord<String, String> data = new ProducerRecord<String, String>
-												(topic, tweet.getUser() + ": ", tweet.getTweet());
+			GenericRecord avroRecord = new GenericData.Record(schema);
+			avroRecord.put("createdAt", tweet.getCreatedAt());
+			avroRecord.put("username", tweet.getUser());
+			avroRecord.put("tweet", tweet.getTweet());
+
+			System.out.println("Sending tweet ...");
+			ProducerRecord<Object, Object> data = new ProducerRecord<>
+													(topic, tweet.getUser(), avroRecord);
+			//producer.send(data).get() = synchronous call
 			producer.send(data);
 		}
+		Logging.print("Finished sending records to Kafka...");
 		producer.close();
 	}
 
 	public static void main(String[] args)
 	{
-		
+
 	}
-	
+
 	public List<Tweets> getTweets()
 	{
 		return tweets;

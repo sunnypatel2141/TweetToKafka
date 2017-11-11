@@ -1,11 +1,12 @@
 public class Tweets
 {
-	private String user, tweet;
+	private String createdAt, user, tweet;
 
-	public Tweets(String user, String tweet)
+	public Tweets(String user, String tweet, String createdAt)
 	{
 		setUser(user);
 		setTweet(tweet);
+		setCreatedAt(createdAt);
 	}
 
 	public String getUser()
@@ -23,5 +24,13 @@ public class Tweets
 	public void setTweet(String tweet)
 	{
 		this.tweet = tweet;
-	}	
+	}
+	public String getCreatedAt()
+	{
+		return createdAt;
+	}
+	public void setCreatedAt(String createdAt)
+	{
+		this.createdAt = createdAt;
+	}
 }
