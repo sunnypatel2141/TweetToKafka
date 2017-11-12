@@ -7,55 +7,6 @@ import java.util.Properties;
 
 public class KafkaWriter
 {
-	//	private final static String BOOTSTRAP_SERVER = "localhost:9092";
-	//	private final static String TOPIC = "first-write";
-	//
-	//	private static Producer<Long, String> createProducer()
-	//	{
-	//		Properties props = new Properties();
-	//		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-	//		                                    BOOTSTRAP_SERVER);
-	//		props.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaExampleProducer");
-	//		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-	//		                                LongSerializer.class.getName());
-	//		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-	//		                            StringSerializer.class.getName());
-	//        return new KafkaProducer<>(props);
-	//	}
-	//
-	//	static void runProducer(final int sendMessageCount) throws InterruptedException
-	//	{
-	//		final Producer<Long, String> producer = createProducer();
-	//		long time = System.currentTimeMillis();
-	//		final CountDownLatch countDownLatch = new CountDownLatch(sendMessageCount);
-	//
-	//		try
-	//		{
-	//			for (long index = time; index < time + sendMessageCount; index++)
-	//			{
-	//				final ProducerRecord<Long, String> record = new ProducerRecord<Long, String>(TOPIC, index,
-	//						"Using Kafka... ");
-	//				producer.send(record, (metadata, exception) ->
-	//				{
-	//					long elapsedTime = System.currentTimeMillis() - time;
-	//					if (metadata != null)
-	//					{
-	//						System.out.printf("Sent record(key=%s value=%s) " + "Meta(partition=%d, offset=%d) Time=%d\n",
-	//								record.key(), record.value(), metadata.partition(), metadata.offset(), elapsedTime);
-	//					} else
-	//					{
-	//						exception.printStackTrace();
-	//					}
-	//					countDownLatch.countDown();
-	//				});
-	//			}
-	//			countDownLatch.await(25, TimeUnit.SECONDS);
-	//		} finally
-	//		{
-	//			producer.flush();
-	//			producer.close();
-	//		}
-	//	}
 	private List<Tweets> tweets;
 	private String topic;
 
@@ -118,6 +69,7 @@ public class KafkaWriter
 		Logging.print("Sending records to Kafka...");
 
 		KafkaProducer<Object, Object> producer = new KafkaProducer<Object, Object>(props);
+		long time = System.currentTimeMillis();
 
 		for (Tweets tweet : tweets)
 		{
@@ -126,13 +78,24 @@ public class KafkaWriter
 			avroRecord.put("username", tweet.getUser());
 			avroRecord.put("tweet", tweet.getTweet());
 
-			System.out.println("Sending tweet ...");
 			ProducerRecord<Object, Object> data = new ProducerRecord<>
 													(topic, tweet.getUser(), avroRecord);
 			//producer.send(data).get() = synchronous call
-			producer.send(data);
+			producer.send(data, (metadata, exception) ->
+			{
+				long elapsedTime = System.currentTimeMillis() - time;
+				if (metadata != null)
+				{
+					System.out.printf("Sent record (key=%s value=%s) " + "Meta(partition=%d, offset=%d) Time=%d\n",
+							data.key(), data.value(), metadata.partition(), metadata.offset(), elapsedTime);
+				} else
+				{
+					exception.printStackTrace();
+				}
+			});
 		}
 		Logging.print("Finished sending records to Kafka...");
+		producer.flush();
 		producer.close();
 	}
 

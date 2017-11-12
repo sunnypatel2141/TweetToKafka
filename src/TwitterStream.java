@@ -15,6 +15,8 @@ import twitter4j.conf.ConfigurationBuilder;
  */
 public class TwitterStream 
 {	
+	private static List<Tweets> allTweets = new ArrayList<>();
+
 	public static void main(String[] args) throws TwitterException, IOException
 	{
 		if (args.length != 5) {
@@ -24,43 +26,28 @@ public class TwitterStream
             System.exit(-1);
         }
 		
-		List<Tweets> allTweets = new ArrayList<>();
 		String keyword = args[4];
 		
 		Logging.print("Keyword: " + keyword);
-		Logging.print("Assigning configs...");
 		
 		ConfigurationBuilder cb = assignAccessParams(args);
-		
-		Logging.print("Create Twitter instance...");
-		TwitterFactory tf = new TwitterFactory(cb.build());
-		Twitter twitter = tf.getInstance();
+		Twitter twitter = getInstance(cb);
 		
         try {
-            Query query = new Query(keyword);
-            QueryResult result;
-            do {
-                result = twitter.search(query);
-                List<Status> tweets = result.getTweets();
-                for (Status tweet : tweets) {
-                		Tweets tweetObj = new Tweets(tweet.getUser().getScreenName(), tweet.getText(), tweet.getCreatedAt().toString());
-                		allTweets.add(tweetObj);
-                }
-            } while ((query = result.nextQuery()) != null);
+        		accumulateAllTweets(twitter, keyword);
         } catch (TwitterException te) {
             te.printStackTrace();
             Logging.print("Failed to search tweets: " + te.getMessage());
         }
         
         Logging.print("Finished retrieving tweets...");
-        KafkaWriter kafkaWriter = new KafkaWriter();
-        kafkaWriter.setTopic(keyword);
-        kafkaWriter.setTweets(allTweets);
-        kafkaWriter.tweetToKafka();
+        
+        instantiateKafkaWriter(keyword);
 	}
 
 	private static ConfigurationBuilder assignAccessParams(String[] args)
 	{
+		Logging.print("Assigning configs...");
 		ConfigurationBuilder cb = new ConfigurationBuilder();
 		cb.setDebugEnabled(true)
 		  .setOAuthConsumerKey(args[0])
@@ -68,5 +55,41 @@ public class TwitterStream
 		  .setOAuthAccessToken(args[2])
 		  .setOAuthAccessTokenSecret(args[3]);
 		return cb;
+	}
+	
+	private static Twitter getInstance(ConfigurationBuilder cb) 
+	{
+		Logging.print("Create Twitter instance...");
+		TwitterFactory tf = new TwitterFactory(cb.build());
+		return tf.getInstance();
+	}
+	
+	private static void instantiateKafkaWriter(String topic)
+	{
+		Logging.print("Instantiate Kafka Writer...");
+		KafkaWriter kafkaWriter = new KafkaWriter();
+        kafkaWriter.setTopic(topic);
+        kafkaWriter.setTweets(allTweets);
+        kafkaWriter.tweetToKafka();
+	}
+	
+	private static void accumulateAllTweets(Twitter twitter, String topic) throws TwitterException
+	{
+        Query query = new Query(topic);
+        QueryResult result;
+        do {
+            result = twitter.search(query);
+            List<Status> tweets = result.getTweets();
+            for (Status tweet : tweets) {
+            		Tweets tweetObj = new Tweets(tweet.getUser().getScreenName(), 
+            				tweet.getText(), tweet.getCreatedAt().toString());
+            		allTweets.add(tweetObj);
+            }
+        } while ((query = result.nextQuery()) != null);
+	}
+	
+	public List<Tweets> getAllTweets()
+	{
+		return allTweets;
 	}
 }
