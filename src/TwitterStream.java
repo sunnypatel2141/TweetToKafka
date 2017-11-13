@@ -19,14 +19,15 @@ public class TwitterStream
 
 	public static void main(String[] args) throws TwitterException, IOException
 	{
-		if (args.length != 5) {
+		if (args.length != 6) {
 			System.out.println
         			("This application requires five arguments: Consumer Key, Consumer Secret, "
-            		+ "Access Token, Access Token Secret, and Search Value.");
+            		+ "Access Token, Access Token Secret, Search Value, and File Name.");
             System.exit(-1);
         }
 		
 		String keyword = args[4];
+		String filename = args[5];
 		
 		Logging.print("Keyword: " + keyword);
 		
@@ -42,7 +43,7 @@ public class TwitterStream
         
         Logging.print("Finished retrieving tweets...");
         
-        instantiateKafkaWriter(keyword);
+        instantiateKafkaWriter(keyword, filename);
 	}
 
 	private static ConfigurationBuilder assignAccessParams(String[] args)
@@ -64,12 +65,13 @@ public class TwitterStream
 		return tf.getInstance();
 	}
 	
-	private static void instantiateKafkaWriter(String topic)
+	private static void instantiateKafkaWriter(String topic, String filename)
 	{
 		Logging.print("Instantiate Kafka Writer...");
 		KafkaWriter kafkaWriter = new KafkaWriter();
         kafkaWriter.setTopic(topic);
         kafkaWriter.setTweets(allTweets);
+        kafkaWriter.setFilename(filename);
         kafkaWriter.tweetToKafka();
 	}
 	
