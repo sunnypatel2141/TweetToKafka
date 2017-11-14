@@ -1,6 +1,11 @@
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.Status;
@@ -12,19 +17,22 @@ import twitter4j.conf.ConfigurationBuilder;
 /** * Stream twitter * */
 public class TwitterStream
 {
-//	 static class SimpleThread extends Thread // { // QueryResult result;
-//	 //
-//	 public SimpleThread(QueryResult result) // { // this.result = result;
-//	 } //
-//	 public void run() // { // System.out.println("Starting thread ... " +
-//	 getName());
-//	 List<Status> tweets = result.getTweets();
-//	 for (Status tweet
-//	 : tweets) { // Tweets tweetObj = new Tweets(tweet.getUser().getScreenName(),
-//	 // tweet.getText(), tweet.getCreatedAt().toString());
-//	
-//	 allTweets.add(tweetObj);
-//	 } // } // }
+	 static class SimpleThread extends Thread 
+	 { 
+		 Tweets tweets;
+		 
+		 public SimpleThread(Tweets tweets) 
+		 { 
+//			 System.out.println("Initialize thread ... " + Thread.currentThread().getName());
+			 this.tweets = tweets;
+		 }
+		 public void run() 
+		 { 
+//			 System.out.println("Starting thread ... " + Thread.currentThread().getName());
+			 int score = NLP.findSentiment(tweets.getTweet());
+			 tweets.setRating(stringify(score));
+		 }
+	 }
 
 	private static Vector<Tweets> allTweets = new Vector<>();
 
@@ -54,8 +62,9 @@ public class TwitterStream
 		}
 		Logging.print("Finished retrieving tweets...");
 		// ts.printContents();
+		
+		ts.analyzeTweets();
 		ts.instantiateKafkaWriter(keyword, filename);
-		// instantiateKafkaWriter(keyword, filename);
 	}
 
 	private ConfigurationBuilder assignAccessParams(String[] args)
@@ -143,6 +152,71 @@ public class TwitterStream
 //			System.out.println(tweet.getCreatedAt() + "..." + tweet.getTweet() + "..." + tweet.getUser());
 //		 }
 //	}
+
+	public void analyzeTweets()
+	{
+		long time = System.currentTimeMillis();
+		ArrayList<SimpleThread> arrThreads = new ArrayList<SimpleThread>();
+		NLP.init();	
+//		ExecutorService executor = Executors.newFixedThreadPool(100);
+		for (Tweets tweets : allTweets)
+		{
+//			System.out.println("Inside...");
+//			Runnable worker = new SimpleThread(tweets);
+//			executor.execute(worker);
+			SimpleThread st = new SimpleThread(tweets);
+			st.run();
+			arrThreads.add(st);
+		}
+//		try
+//		{
+//			executor.awaitTermination(10, TimeUnit.SECONDS);
+//		} catch (InterruptedException e)
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		executor.shutdown();
+//        while (!executor.isTerminated()) { }
+
+        long time2 = System.currentTimeMillis();
+		System.out.println("Analyze time: " + (time2-time));
+		
+		try
+		{
+			for (int i = 0 ; i < arrThreads.size(); i++)
+			{
+				arrThreads.get(i).join();
+			}
+		} catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private static String stringify(int score)
+	{
+		String str;
+		switch (score)
+		{
+			case 0:
+				str = "SENTIMENT: Negative";
+				break;
+			case 1:
+				str = "SENTIMENT: Slightly negative";
+				break;
+			case 2:
+				str = "SENTIMENT: Neutral";
+				break;
+			case 3:
+				str = "SENTIMENT: Slightly positive";
+				break;
+			default:
+				str = "SENTIMENT: Positive";
+				break;
+		}
+		return str;
+	}
 
 	public Vector<Tweets> getAllTweets()
 	{

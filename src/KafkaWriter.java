@@ -57,7 +57,8 @@ public class KafkaWriter
 						"\"fields\": [" +
 						"{\"name\": \"createdAt\", \"type\": [\"null\",\"string\"],\"default\":null}," +
 						"{\"name\": \"username\", \"type\": [\"null\",\"string\"],\"default\":null}," +
-						"{\"name\": \"tweet\", \"type\": [\"null\",\"string\"],\"default\":null}" +
+						"{\"name\": \"tweet\", \"type\": [\"null\",\"string\"],\"default\":null}," +
+						"{\"name\": \"sentiment\", \"type\": [\"null\",\"string\"],\"default\":null}" +
 						"]}";
 		return schemaString;
 	}
@@ -82,7 +83,8 @@ public class KafkaWriter
 			avroRecord.put("createdAt", tweet.getCreatedAt());
 			avroRecord.put("username", tweet.getUser());
 			avroRecord.put("tweet", tweet.getTweet());
-
+			avroRecord.put("sentiment", tweet.getRating());
+			
 			ProducerRecord<Object, Object> data = new ProducerRecord<>
 													(topic, tweet.getUser(), avroRecord);
 			//producer.send(data).get() = synchronous call
@@ -110,7 +112,10 @@ public class KafkaWriter
 
 	public static void main(String[] args)
 	{
-
+//		KafkaWriter kw = new KafkaWriter();
+//		kw.setTopic("sunnypatel2141");
+//		kw.setFilename("sunnypate2141.txt");
+//		kw.tweetToKafka();
 	}
 	
 	private void populateFile(ProducerRecord<Object, Object> data, RecordMetadata metadata)

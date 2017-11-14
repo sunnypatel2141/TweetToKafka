@@ -34,4 +34,9 @@ public class NLP {
 		}
 		return mainSentiment;
 	}
+	
+	public static void main(String[] args)
+	{
+		
+	}
 }

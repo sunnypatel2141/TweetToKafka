@@ -1,12 +1,13 @@
 public class Tweets
 {
-	private String createdAt, user, tweet;
+	private String createdAt, user, tweet, rating;
 
 	public Tweets(String user, String tweet, String createdAt)
 	{
 		setUser(user);
 		setTweet(tweet);
 		setCreatedAt(createdAt);
+//		setRating(rating);
 	}
 
 	public String getUser()
@@ -32,5 +33,13 @@ public class Tweets
 	public void setCreatedAt(String createdAt)
 	{
 		this.createdAt = createdAt;
+	}
+	public String getRating()
+	{
+		return rating;
+	}
+	public void setRating(String rating)
+	{
+		this.rating = rating;
 	}
 }
