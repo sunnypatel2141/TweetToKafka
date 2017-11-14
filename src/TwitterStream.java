@@ -12,19 +12,19 @@ import twitter4j.conf.ConfigurationBuilder;
 /** * Stream twitter * */
 public class TwitterStream
 {
-	// static class SimpleThread extends Thread // { // QueryResult result;
-	// //
-	// public SimpleThread(QueryResult result) // { // this.result = result;
-	// } //
-	// public void run() // { // System.out.println("Starting thread ... " +
-	// getName());
-	// List<Status> tweets = result.getTweets();
-	// for (Status tweet
-	// : tweets) { // Tweets tweetObj = new Tweets(tweet.getUser().getScreenName(),
-	// // tweet.getText(), tweet.getCreatedAt().toString());
-	//
-	// allTweets.add(tweetObj);
-	// } // } // }
+//	 static class SimpleThread extends Thread // { // QueryResult result;
+//	 //
+//	 public SimpleThread(QueryResult result) // { // this.result = result;
+//	 } //
+//	 public void run() // { // System.out.println("Starting thread ... " +
+//	 getName());
+//	 List<Status> tweets = result.getTweets();
+//	 for (Status tweet
+//	 : tweets) { // Tweets tweetObj = new Tweets(tweet.getUser().getScreenName(),
+//	 // tweet.getText(), tweet.getCreatedAt().toString());
+//	
+//	 allTweets.add(tweetObj);
+//	 } // } // }
 
 	private static Vector<Tweets> allTweets = new Vector<>();
 
@@ -89,6 +89,7 @@ public class TwitterStream
 		Query query = new Query(topic);
 		QueryResult result;
 		// ArrayList<SimpleThread> arrThreads = new ArrayList<SimpleThread>();
+		
 		long start = System.currentTimeMillis();
 		do
 		{
@@ -101,26 +102,47 @@ public class TwitterStream
 				allTweets.add(tweetObj);
 			}
 		} while ((query = result.nextQuery()) != null);
-//		 do { // result = twitter.search(query);
+		
+//		 do { result = twitter.search(query);
 //			SimpleThread st = new SimpleThread(result);
 //			st.start();
 //			arrThreads.add(st);
-//		 // if (arrThreads.size() % 10 == 0) // { // try // { // //sleep for five
-//		 seconds every 10 thread // Thread.sleep(5000);
-//		 } catch (InterruptedException e) // { // // TODO Auto-generated catch block
-//		 // e.printStackTrace();
-//		 } // } // } while ((query = result.nextQuery()) != null);
+//		 	if (arrThreads.size() % 10 == 0) 
+//			{ 
+//			try 
+//				{ 
+//					//sleep for five seconds every 10 thread
+//					Thread.sleep(5000);
+//				} catch (InterruptedException e) 
+//				{ 
+//					// // TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//		} while ((query = result.nextQuery()) != null);
+		
 		long end = System.currentTimeMillis();
 		System.out.println("Total time: " + (end - start));
-		// // try // { // for (int i = 0; i < arrThreads.size(); i++) // { //
-		// arrThreads.get(i).join();
-		// } // } catch (InterruptedException e) // { // e.printStackTrace();
-		// } } public void printContents() { for (Tweets tweet : allTweets)
-		// {
-		// System.out.println(tweet.getCreatedAt() + "..." + tweet.getTweet() + "..." +
-		// tweet.getUser());
-		// }
+		
+//		 try 
+//		 { 
+//			 for (int i = 0; i < arrThreads.size(); i++) 
+//			 {
+//				 arrThreads.get(i).join();
+//			 } 
+//		 } catch (InterruptedException e) 
+//		 { 
+//			 e.printStackTrace();
+//		 }
 	}
+		 
+//	public void printContents() 
+//	{ 
+//		for (Tweets tweet : allTweets)
+//		{
+//			System.out.println(tweet.getCreatedAt() + "..." + tweet.getTweet() + "..." + tweet.getUser());
+//		 }
+//	}
 
 	public Vector<Tweets> getAllTweets()
 	{
