@@ -164,9 +164,14 @@ public class TwitterStream
 //			System.out.println("Inside...");
 //			Runnable worker = new SimpleThread(tweets);
 //			executor.execute(worker);
-			SimpleThread st = new SimpleThread(tweets);
-			st.run();
-			arrThreads.add(st);
+			
+			// without this?
+//			SimpleThread st = new SimpleThread(tweets);
+//			st.run();
+//			arrThreads.add(st);
+			
+			int score = NLP.findSentiment(tweets.getTweet());
+			tweets.setRating(stringify(score));
 		}
 //		try
 //		{
@@ -200,19 +205,19 @@ public class TwitterStream
 		switch (score)
 		{
 			case 0:
-				str = "SENTIMENT: Negative";
+				str = "Negative";
 				break;
 			case 1:
-				str = "SENTIMENT: Slightly negative";
+				str = "Slightly negative";
 				break;
 			case 2:
-				str = "SENTIMENT: Neutral";
+				str = "Neutral";
 				break;
 			case 3:
-				str = "SENTIMENT: Slightly positive";
+				str = "Slightly positive";
 				break;
 			default:
-				str = "SENTIMENT: Positive";
+				str = "Positive";
 				break;
 		}
 		return str;

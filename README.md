@@ -2,6 +2,8 @@
 
 This is an application which searches Twitter for keywords passed in as arguments, or searches for all tweets by a particular user and sends the tweets to Confluent Platform as messages. The username or search value becomes the topic name in Confluent.  
 
+Each tweet is also analyzed using Stanford CoreNLP software for sentiment analysis. The sentiments are broken down into five types: Negative, Slightly negative, Neutral, Slightly positive, and Positive. KafkaWriter produces each record (tweet) to Kafka containing information such as date created, author, sentiment and the tweet itself.  
+
 Make sure you have Confluent running on localhost with Zookeeper node, Kafka Broker, Schema Registry and REST Server. The application assumes bootstrap host is 9092 and schema port is 8081. KafkaWriter.java can be modified to change the server hosts and port numbers.  
 
 Run the TwitterStream.java file with following arguments:  
