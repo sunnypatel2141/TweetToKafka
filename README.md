@@ -10,6 +10,9 @@ args[1] = Consumer Key Secret
 args[2] = Access Token  
 args[3] = Access Token Secret  
 args[4] = Search keyword  
+args[5] = Filename to store record/metadata information  
+
+Usage: `java -jar tweet-kafka.jar ABCDEFGH IHJKLMNO PQRSTU VQXYZ kafka kafka.txt`  
 
 To consume tweets in Confluent: `./bin/kafka-console-consumer --topic args[4] --bootstrap-server localhost:9092 --from-beginning`  
 
